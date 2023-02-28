@@ -18,37 +18,45 @@ jobs:
       - name: CMake
         run: docker exec mywindows cmake -version
       - name: OpenCV Python
-        run: |
-          docker exec mywindows powershell "'import cv2' | Out-File -Encoding UTF8 -FilePath cv.py"
-          docker exec mywindows powershell "'print(''OpenCV '' + cv2.__version__)' | Out-File -Encoding UTF8 -Append -FilePath cv.py"
-          docker exec mywindows python cv.py
-          docker exec mywindows powershell Remove-Item cv.py
+        run: >
+          docker exec mywindows powershell "
+          'import cv2' | Out-File -Encoding UTF8 -FilePath cv.py ;
+          'print(''OpenCV '' + cv2.__version__)' | Out-File -Encoding UTF8 -Append -FilePath cv.py ;
+          python cv.py ;
+          Remove-Item cv.py ; "
       - name: OpenCV C++
-        run: |
-          docker exec mywindows powershell mkdir OpenCVTest
-          docker exec --workdir 'C:\OpenCVTest' mywindows powershell '''project(OpenCVTest)'' | Out-File -Encoding UTF8 -FilePath CMakeLists.txt'
-          docker exec --workdir 'C:\OpenCVTest' mywindows powershell '''cmake_minimum_required(VERSION 3.25)'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt'
-          docker exec --workdir 'C:\OpenCVTest' mywindows powershell '''find_package(OpenCV REQUIRED)'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt'
-          docker exec --workdir 'C:\OpenCVTest' mywindows powershell '''message("OpenCV_VERSION: ${OpenCV_VERSION}")'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt'
-          docker exec --workdir 'C:\OpenCVTest' mywindows powershell '''message("OpenCV_SHARED: ${OpenCV_SHARED}")'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt'
-          docker exec --workdir 'C:\OpenCVTest' mywindows powershell '''message("OpenCV_INSTALL_PATH: ${OpenCV_INSTALL_PATH}")'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt'
-          docker exec --workdir 'C:\OpenCVTest' mywindows powershell '''message("OpenCV_INCLUDE_DIRS: ${OpenCV_INCLUDE_DIRS}")'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt'
-          docker exec --workdir 'C:\OpenCVTest' mywindows powershell '''message("OpenCV_COMPUTE_CAPABILITIES: ${OpenCV_COMPUTE_CAPABILITIES}")'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt'
-          docker exec --workdir 'C:\OpenCVTest' mywindows powershell '''message("OpenCV_LIB_COMPONENTS: ${OpenCV_LIB_COMPONENTS}")'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt'
-          docker exec --workdir 'C:\OpenCVTest' mywindows powershell 'cmake .'
-          docker exec mywindows powershell Remove-Item -Recurse -Force OpenCVTest
+        run: >
+          docker exec mywindows powershell '
+          mkdir OpenCVTest ;
+          cd OpenCVTest ;
+          ''project(OpenCVTest)'' | Out-File -Encoding UTF8 -FilePath CMakeLists.txt ;
+          ''cmake_minimum_required(VERSION 3.25)'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt ;
+          ''find_package(OpenCV REQUIRED)'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt ;
+          ''message("OpenCV_VERSION: ${OpenCV_VERSION}")'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt ;
+          ''message("OpenCV_SHARED: ${OpenCV_SHARED}")'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt ;
+          ''message("OpenCV_INSTALL_PATH: ${OpenCV_INSTALL_PATH}")'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt ;
+          ''message("OpenCV_INCLUDE_DIRS: ${OpenCV_INCLUDE_DIRS}")'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt ;
+          ''message("OpenCV_COMPUTE_CAPABILITIES: ${OpenCV_COMPUTE_CAPABILITIES}")'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt ;
+          ''message("OpenCV_LIB_COMPONENTS: ${OpenCV_LIB_COMPONENTS}")'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt ;
+          cmake . ;
+          cd .. ;
+          Remove-Item -Recurse -Force OpenCVTest ;
+          '
       - name: Catch2 C++
-        run: |
-          docker exec --workdir 'C:\Catch2Test' mywindows powershell mkdir Catch2Test
-          docker exec --workdir 'C:\Catch2Test' mywindows powershell '''project(Catch2Test)'' | Out-File -Encoding UTF8 -FilePath CMakeLists.txt'
-          docker exec --workdir 'C:\Catch2Test' mywindows powershell '''cmake_minimum_required(VERSION 3.25)'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt'
-          docker exec --workdir 'C:\Catch2Test' mywindows powershell '''find_package(Catch2 REQUIRED)'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt'
-          docker exec --workdir 'C:\Catch2Test' mywindows powershell '''message("Catch2_VERSION: ${Catch2_VERSION}")'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt'
-          docker exec --workdir 'C:\Catch2Test' mywindows powershell '''get_property(Catch2_TARGETS DIRECTORY "${CMAKE_SOURCE_DIR}" PROPERTY IMPORTED_TARGETS)'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt'
-          docker exec --workdir 'C:\Catch2Test' mywindows powershell '''message("Catch2_TARGETS: ${Catch2_TARGETS}")'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt'
-          docker exec --workdir 'C:\Catch2Test' mywindows powershell 'cmake .'
-          docker exec --workdir 'C:\Catch2Test' mywindows powershell Remove-Item -Recurse -Force Catch2Test
+        run: >
+          docker exec --workdir 'C:\Catch2Test' mywindows powershell '
+          mkdir Catch2Test ;
+          cd Catch2Test ;
+          ''project(Catch2Test)'' | Out-File -Encoding UTF8 -FilePath CMakeLists.txt ;
+          ''cmake_minimum_required(VERSION 3.25)'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt ;
+          ''find_package(Catch2 REQUIRED)'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt ;
+          ''message("Catch2_VERSION: ${Catch2_VERSION}")'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt ;
+          ''get_property(Catch2_TARGETS DIRECTORY "${CMAKE_SOURCE_DIR}" PROPERTY IMPORTED_TARGETS)'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt ;
+          ''message("Catch2_TARGETS: ${Catch2_TARGETS}")'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt ;
+          cmake . ;
+          cd .. ;
+          Remove-Item -Recurse -Force Catch2Test ;
+          '
       - name: Clean container
-        run: |
-          docker container stop mywindows
-          docker container rm mywindows
+        if: success() || failure()
+        run: docker container stop mywindows ; docker container rm mywindows
