@@ -6,36 +6,25 @@ on:
   pull_request:
     branches: [main]
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   Versions:
     runs-on: [self-hosted, Windows, X64]
     steps:
       - uses: actions/checkout@v3
+      - name: Container setup
+        run: docker run --detach --tty --interactive --name mywindows morfin/mywindows:Git_2.39.2_Python_3.11.2_CMake_3.25.2_VS_16_OpenCV_4.7.0_Catch_v3.3.1_Release powershell
       - name: Python
-        run: |
-          docker run --detach --tty --interactive --name mywindows morfin/mywindows:Git_2.39.2_Python_3.11.2_CMake_3.25.2_VS_16_OpenCV_4.7.0_Catch_v3.3.1_Release powershell
-          docker exec mywindows python --version
-          docker container stop mywindows
-          docker container rm mywindows
+        run: docker exec mywindows python --version
       - name: CMake
-        run: |
-          docker run --detach --tty --interactive --name mywindows morfin/mywindows:Git_2.39.2_Python_3.11.2_CMake_3.25.2_VS_16_OpenCV_4.7.0_Catch_v3.3.1_Release powershell
-          docker exec mywindows cmake -version
-          docker container stop mywindows
-          docker container rm mywindows
+        run: docker exec mywindows cmake -version
       - name: OpenCV Python
         run: |
-          docker run --detach --tty --interactive --name mywindows morfin/mywindows:Git_2.39.2_Python_3.11.2_CMake_3.25.2_VS_16_OpenCV_4.7.0_Catch_v3.3.1_Release powershell
           docker exec mywindows powershell "'import cv2' | Out-File -Encoding UTF8 -FilePath cv.py"
           docker exec mywindows powershell "'print(''OpenCV '' + cv2.__version__)' | Out-File -Encoding UTF8 -Append -FilePath cv.py"
           docker exec mywindows python cv.py
           docker exec mywindows powershell Remove-Item cv.py
-          docker container stop mywindows
-          docker container rm mywindows
       - name: OpenCV C++
         run: |
-          docker run --detach --tty --interactive --name mywindows morfin/mywindows:Git_2.39.2_Python_3.11.2_CMake_3.25.2_VS_16_OpenCV_4.7.0_Catch_v3.3.1_Release powershell
           docker exec mywindows powershell mkdir OpenCVTest
           docker exec --workdir 'C:\OpenCVTest' mywindows powershell '''project(OpenCVTest)'' | Out-File -Encoding UTF8 -FilePath CMakeLists.txt'
           docker exec --workdir 'C:\OpenCVTest' mywindows powershell '''cmake_minimum_required(VERSION 3.25)'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt'
@@ -48,11 +37,8 @@ jobs:
           docker exec --workdir 'C:\OpenCVTest' mywindows powershell '''message("OpenCV_LIB_COMPONENTS: ${OpenCV_LIB_COMPONENTS}")'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt'
           docker exec --workdir 'C:\OpenCVTest' mywindows powershell 'cmake .'
           docker exec mywindows powershell Remove-Item -Recurse -Force OpenCVTest
-          docker container stop mywindows
-          docker container rm mywindows
       - name: Catch2 C++
         run: |
-          docker run --detach --tty --interactive --name mywindows morfin/mywindows:Git_2.39.2_Python_3.11.2_CMake_3.25.2_VS_16_OpenCV_4.7.0_Catch_v3.3.1_Release powershell
           docker exec --workdir 'C:\Catch2Test' mywindows powershell mkdir Catch2Test
           docker exec --workdir 'C:\Catch2Test' mywindows powershell '''project(Catch2Test)'' | Out-File -Encoding UTF8 -FilePath CMakeLists.txt'
           docker exec --workdir 'C:\Catch2Test' mywindows powershell '''cmake_minimum_required(VERSION 3.25)'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt'
@@ -62,5 +48,7 @@ jobs:
           docker exec --workdir 'C:\Catch2Test' mywindows powershell '''message("Catch2_TARGETS: ${Catch2_TARGETS}")'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt'
           docker exec --workdir 'C:\Catch2Test' mywindows powershell 'cmake .'
           docker exec --workdir 'C:\Catch2Test' mywindows powershell Remove-Item -Recurse -Force Catch2Test
+      - name: Clean container
+        run: |
           docker container stop mywindows
           docker container rm mywindows
