@@ -12,11 +12,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Container setup
-        run: docker run --detach --tty --interactive --name mywindows morfin/mywindows:Git_2.39.2_Python_3.11.2_CMake_3.25.2_VS_16_OpenCV_4.7.0_Catch_v3.3.1_Release powershell
+        run: docker run --detach --tty --interactive --name mywindows morfin/mywindows:Git_2.40.0_Python_3.11.2_CMake_3.26.0_VS_17_OpenCV_4.7.0_Catch_v3.3.2_Release powershell
       - name: Python
         run: docker exec mywindows python --version
       - name: CMake
-        run: docker exec mywindows cmake -version
+        run: docker exec mywindows cmake --version
+      - name: git
+        run: docker exec mywindows git --version
       - name: OpenCV Python
         run: >
           docker exec mywindows powershell "
@@ -30,7 +32,7 @@ jobs:
           mkdir OpenCVTest ;
           cd OpenCVTest ;
           ''project(OpenCVTest)'' | Out-File -Encoding UTF8 -FilePath CMakeLists.txt ;
-          ''cmake_minimum_required(VERSION 3.25)'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt ;
+          ''cmake_minimum_required(VERSION 3.26)'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt ;
           ''find_package(OpenCV REQUIRED)'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt ;
           ''message("OpenCV_VERSION: ${OpenCV_VERSION}")'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt ;
           ''message("OpenCV_SHARED: ${OpenCV_SHARED}")'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt ;
@@ -48,7 +50,7 @@ jobs:
           mkdir Catch2Test ;
           cd Catch2Test ;
           ''project(Catch2Test)'' | Out-File -Encoding UTF8 -FilePath CMakeLists.txt ;
-          ''cmake_minimum_required(VERSION 3.25)'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt ;
+          ''cmake_minimum_required(VERSION 3.26)'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt ;
           ''find_package(Catch2 REQUIRED)'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt ;
           ''message("Catch2_VERSION: ${Catch2_VERSION}")'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt ;
           ''get_property(Catch2_TARGETS DIRECTORY "${CMAKE_SOURCE_DIR}" PROPERTY IMPORTED_TARGETS)'' | Out-File -Encoding UTF8 -Append -FilePath CMakeLists.txt ;

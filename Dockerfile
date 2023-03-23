@@ -7,11 +7,11 @@ RUN Register-PackageSource -Name Nuget -Location "http://www.nuget.org/api/v2" -
 
 RUN Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
 
-ARG GIT_VERSION
-RUN Install-Package -Name GitForWindows -RequiredVersion $env:GIT_VERSION; \
-    [Environment]::SetEnvironmentVariable('PATH' , \
-    'C:\Program Files\PackageManagement\NuGet\Packages\GitForWindows.' + $env:GIT_VERSION + '\tools\cmd;' \
-    + [System.Environment]::GetEnvironmentVariable('Path', 'User'), [EnvironmentVariableTarget]::User)
+ARG VS_BUILDTOOLS_VERSION
+RUN Invoke-WebRequest "https://aka.ms/vs/$env:VS_BUILDTOOLS_VERSION/release/vs_BuildTools.exe" -OutFile vs_BuildTools.exe; \
+    Start-Process -FilePath 'vs_BuildTools.exe' -ArgumentList '--quiet', '--norestart', '--locale en-US', '--add Microsoft.VisualStudio.Workload.VCTools', '--includeRecommended' -Wait; \
+    Remove-Item .\vs_BuildTools.exe; \
+    Remove-Item -Force -Recurse 'C:\Program Files (x86)\Microsoft Visual Studio\Installer'
 
 ARG PYTHON_VERSION
 RUN Install-Package -Name python -RequiredVersion $env:PYTHON_VERSION; \
@@ -27,17 +27,16 @@ RUN Invoke-WebRequest "https://github.com/Kitware/CMake/releases/download/v$env:
     'C:\Program Files\cmake\bin;' \
     + [System.Environment]::GetEnvironmentVariable('Path', 'User'), [EnvironmentVariableTarget]::User)
 
-
-ARG VS_BUILDTOOLS_VERSION
-RUN Invoke-WebRequest "https://aka.ms/vs/$env:VS_BUILDTOOLS_VERSION/release/vs_BuildTools.exe" -OutFile vs_BuildTools.exe; \
-    Start-Process -FilePath 'vs_BuildTools.exe' -ArgumentList '--quiet', '--norestart', '--locale en-US', '--add Microsoft.VisualStudio.Workload.VCTools', '--includeRecommended' -Wait; \
-    Remove-Item .\vs_BuildTools.exe; \
-    Remove-Item -Force -Recurse 'C:\Program Files (x86)\Microsoft Visual Studio\Installer'
-
 RUN python -m pip install --upgrade pip; python -m pip install numpy
 
 # For server image you need to install Media Foundation
 # RUN Install-WindowsFeature Server-Media-Foundation
+
+ARG GIT_VERSION
+RUN Install-Package -Name GitForWindows -RequiredVersion $env:GIT_VERSION; \
+    [Environment]::SetEnvironmentVariable('PATH' , \
+    'C:\Program Files\PackageManagement\NuGet\Packages\GitForWindows.' + $env:GIT_VERSION + '\tools\cmd;' \
+    + [System.Environment]::GetEnvironmentVariable('Path', 'User'), [EnvironmentVariableTarget]::User)
 
 ARG BUILD_TYPE
 
